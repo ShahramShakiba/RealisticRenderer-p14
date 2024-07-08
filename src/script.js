@@ -6,6 +6,7 @@ I rely on comments to assess the code." */
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import GUI from 'lil-gui';
 import * as THREE from 'three';
+import { DRACOLoader } from 'three/examples/jsm/Addons.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 
@@ -16,7 +17,12 @@ const scene = new THREE.Scene();
 let width = window.innerWidth;
 let height = window.innerHeight;
 
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('./draco/');
+
 const gltfLoader = new GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+
 const rgbeLoader = new RGBELoader();
 
 //==================== Texture =========================
@@ -57,7 +63,7 @@ const updateAllMaterials = () => {
 
 //================ Environment Map =====================
 //========= Intensity
-scene.environmentIntensity = 1;
+scene.environmentIntensity = 0.7;
 gui.add(scene, 'environmentIntensity').min(0).max(10).step(0.001);
 
 //========= HDR (RGBE) equirectangular
@@ -70,10 +76,25 @@ rgbeLoader.load('/environmentMaps/0/2k.hdr', (environmentMap) => {
 
 //==================== Models =========================
 //========= Helmet
+// gltfLoader.load(
+//   './models/FlightHelmet/glTF/FlightHelmet.gltf',
+//   (gltf) => {
+//     gltf.scene.scale.set(10, 10, 10);
+//     scene.add(gltf.scene);
+
+//     updateAllMaterials();
+//   },
+//   undefined,
+//   (error) => {
+//     console.error('Error loading model:', error);
+//   }
+// );
+
+//======== Hamburger
 gltfLoader.load(
-  './models/FlightHelmet/glTF/FlightHelmet.gltf',
+  './models/hamburger.glb',
   (gltf) => {
-    gltf.scene.scale.set(10, 10, 10);
+    gltf.scene.scale.set(0.5, 0.5, 0.5);
     scene.add(gltf.scene);
 
     updateAllMaterials();
@@ -114,31 +135,38 @@ wall.position.z = -5;
 scene.add(floor, wall);
 
 //===================== Lights =========================
-const directionalLight = new THREE.DirectionalLight('#ffffff', 6);
+const directionalLight = new THREE.DirectionalLight('#ffffff', 4);
 directionalLight.position.set(-4.99, 7.05, 1.64);
 directionalLight.castShadow = true;
 directionalLight.shadow.camera.far = 15;
+directionalLight.shadow.normalBias = 0.032;
+directionalLight.shadow.bias = 0.001;
 directionalLight.shadow.mapSize.set(1024, 1024);
 scene.add(directionalLight);
 
-//===== Shadow Helper
+//========== Shadow Helper
 // const directionalLightHelper = new THREE.CameraHelper(
 //   directionalLight.shadow.camera
 // );
 // scene.add(directionalLightHelper);
 
-//===== directionalLight targets the center of the model
+//========== directionalLight targets the center of the model
 directionalLight.target.position.set(0, 4, 0);
 directionalLight.target.updateWorldMatrix(); // update the matrix only once
 
 // scene.add(directionalLight.target); // update matrix
 
-//===== GUI
+//========= GUI
 gui.add(directionalLight, 'intensity', 0, 10, 0.001).name('Light intensity');
 gui.add(directionalLight.position, 'x', -10, 10, 0.001).name('Light X');
 gui.add(directionalLight.position, 'y', -10, 10, 0.001).name('Light Y');
 gui.add(directionalLight.position, 'z', -10, 10, 0.001).name('Light Z');
+
 gui.add(directionalLight, 'castShadow');
+gui.add(directionalLight.shadow, 'bias', -0.05, 0.05, 0.001).name('bias');
+gui
+  .add(directionalLight.shadow, 'normalBias', -0.05, 0.05, 0.001)
+  .name('normalBias');
 
 //===================== Camera =========================
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
@@ -160,7 +188,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 //====== Tone Mapping
 renderer.toneMapping = THREE.ReinhardToneMapping;
-renderer.toneMappingExposure = 3; // it's like intensity
+renderer.toneMappingExposure = 1.63; // it's like intensity
 
 gui.add(renderer, 'toneMapping', {
   No: THREE.NoToneMapping,
@@ -221,3 +249,14 @@ will fake the process of converting LDR to HDR even if the colors aren't HDR res
 
 /* traverse()
 - traverse is a method used to visit all descendants of an object, including itself, and perform operations on each of them. */
+
+/* Hamburger - before optimizing
+- you can see wired looking on the top bun, these artifacts are called "shadow-acne"
+
+- shadow acne can occur on both smooth and flat surfaces for precision reasons when calculating if the surface is in the shadow or not.
+
+the hamburger is casting a shadow on its own surface.
+
+we have to tweak the light shadow's "bias" and "normalBias" 
+bias: usually help for the flat surfaces
+normalBias: usually helps for rounded surfaces */
