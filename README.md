@@ -100,32 +100,21 @@ In the context of Three.js, a realistic renderer refers to a setup or configurat
    - High-quality textures, environment maps, and post-processing effects can consume significant amounts of memory and storage.
    - Large assets and complex scenes can impact download times and responsiveness.
      
-<br/><br/>
+<br/>
 
 <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Eyes.png" alt="Eyes" width="25" height="25" /> Feel free to delve into the code as it has been written in a straightforward manner for easy understanding.
 <br/> <br/> 
 
 
-> ### _Which Concepts Have I Covered_: <br/>
-
-01. _<h4></h4>_
-02. _<h4></h4>_
-03. _<h4></h4>_
-04. _<h4></h4>_
-05. _<h4></h4>_
-
-    
-<br/><br/>
-
 <!-------- try it live -------->
-#### _Give it a go in real-time and give me a Star_ &nbsp; <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Glowing%20Star.png" alt="Glowing Star" width="25"  /> <a href="" target="_blank"> &nbsp; _Realistic Renderer_ </a> 
+#### _Give it a go in real-time and give me a Star_ &nbsp; <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Glowing%20Star.png" alt="Glowing Star" width="25"  /> <a href="https://realistic-render-shahram.netlify.app/" target="_blank"> &nbsp; _Realistic Renderer_ </a> 
 
 <br/>
 
 <!--------- Video --------->
-<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Clapper%20Board.webp" alt="Clapper Board" width="35" /> &nbsp; 
+<img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Telegram-Animated-Emojis/main/Objects/Clapper%20Board.webp" alt="Clapper Board" width="35" /> &nbsp; Realistic rendering
 
-
+https://github.com/ShahramShakiba/RealisticRenderer-p14/assets/110089830/2b3c73b4-a3bf-4674-b0e9-7b974ba4a98f
 
   <br/> 
 
