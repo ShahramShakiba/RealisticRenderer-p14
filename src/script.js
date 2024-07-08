@@ -19,6 +19,31 @@ let height = window.innerHeight;
 const gltfLoader = new GLTFLoader();
 const rgbeLoader = new RGBELoader();
 
+//==================== Texture =========================
+const textureLoader = new THREE.TextureLoader();
+const floorColorTexture = textureLoader.load(
+  '/textures/wood_cabinet_worn_long/wood_cabinet_worn_long_diff_1k.jpg'
+);
+const floorNormalTexture = textureLoader.load(
+  '/textures/wood_cabinet_worn_long/wood_cabinet_worn_long_nor_gl_1k.png'
+);
+const floorAORoughnessMetalnessTexture = textureLoader.load(
+  '/textures/wood_cabinet_worn_long/wood_cabinet_worn_long_arm_1k.jpg'
+);
+
+const wallColorTexture = textureLoader.load(
+  '/textures/castle_brick_broken_06/castle_brick_broken_06_diff_1k.jpg'
+);
+const wallNormalTexture = textureLoader.load(
+  '/textures/castle_brick_broken_06/castle_brick_broken_06_nor_gl_1k.png'
+);
+const wallAORoughnessMetalnessTexture = textureLoader.load(
+  '/textures/castle_brick_broken_06/castle_brick_broken_06_arm_1k.jpg'
+);
+
+floorColorTexture.colorSpace = THREE.SRGBColorSpace;
+wallColorTexture.colorSpace = THREE.SRGBColorSpace;
+
 //============= Update all materials ==================
 const updateAllMaterials = () => {
   scene.traverse((child) => {
@@ -45,12 +70,48 @@ rgbeLoader.load('/environmentMaps/0/2k.hdr', (environmentMap) => {
 
 //==================== Models =========================
 //========= Helmet
-gltfLoader.load('/models/FlightHelmet/glTF/FlightHelmet.gltf', (gltf) => {
-  gltf.scene.scale.set(10, 10, 10);
-  scene.add(gltf.scene);
+gltfLoader.load(
+  './models/FlightHelmet/glTF/FlightHelmet.gltf',
+  (gltf) => {
+    gltf.scene.scale.set(10, 10, 10);
+    scene.add(gltf.scene);
 
-  updateAllMaterials();
-});
+    updateAllMaterials();
+  },
+  undefined,
+  (error) => {
+    console.error('Error loading model:', error);
+  }
+);
+
+//==================== Objects =========================
+const floor = new THREE.Mesh(
+  new THREE.PlaneGeometry(10, 10),
+  new THREE.MeshStandardMaterial({
+    map: floorColorTexture,
+    normalMap: floorNormalTexture,
+    aoMap: floorAORoughnessMetalnessTexture,
+    roughnessMap: floorAORoughnessMetalnessTexture,
+    metalnessMap: floorAORoughnessMetalnessTexture,
+  })
+);
+floor.rotation.x = Math.PI / -2;
+
+const wall = new THREE.Mesh(
+  new THREE.PlaneGeometry(10, 10),
+  new THREE.MeshStandardMaterial({
+    map: wallColorTexture,
+    normalMap: wallNormalTexture,
+    aoMap: wallAORoughnessMetalnessTexture,
+    roughnessMap: wallAORoughnessMetalnessTexture,
+    metalnessMap: wallAORoughnessMetalnessTexture,
+  })
+);
+wall.rotation.x = Math.PI * 2;
+wall.position.y = 5;
+wall.position.z = -5;
+
+scene.add(floor, wall);
 
 //===================== Lights =========================
 const directionalLight = new THREE.DirectionalLight('#ffffff', 6);
@@ -156,11 +217,7 @@ will fake the process of converting LDR to HDR even if the colors aren't HDR res
 
 /* Matrix
 - When we change properties like "position", "rotation", "scale", those will be compiled into a matrix
-- this process is done right before the object is rendered and only if it's in the scene */
+- this process is done right before the object is rendered and only if it's in the scene so we can not change them unless we use .target.updateWorldMatrix() on the property */
 
 /* traverse()
-- traverse is a method used to visit all descendants of an object, including itself, and perform operations on each of them.
-
-- In the latest versions of Three.js, the intensity of the environment map is set directly on scene.environmentIntensity.
-
-- For this reasons, "updateAllMaterials" isn’t doing anything anymore, but I kept the function with the traverse(…) so that you can still add what’s following. */
+- traverse is a method used to visit all descendants of an object, including itself, and perform operations on each of them. */
