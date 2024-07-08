@@ -11,7 +11,6 @@ const scene = new THREE.Scene();
 let width = window.innerWidth;
 let height = window.innerHeight;
 
-//==================== Loaders ========================
 const gltfLoader = new GLTFLoader();
 const rgbeLoader = new RGBELoader();
 
@@ -30,21 +29,21 @@ scene.environmentIntensity = 1;
 gui.add(scene, 'environmentIntensity').min(0).max(10).step(0.001);
 
 //========= HDR (RGBE) equirectangular
-// rgbeLoader.load('/environmentMaps/0/2k.hdr', (environmentMap) => {
-//   environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+rgbeLoader.load('/environmentMaps/0/2k.hdr', (environmentMap) => {
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping;
 
-//   scene.background = environmentMap;
-//   scene.environment = environmentMap;
-// });
+  scene.background = environmentMap;
+  scene.environment = environmentMap;
+});
 
 //==================== Models =========================
 //========= Helmet
-// gltfLoader.load('/models/FlightHelmet/glTF/FlightHelmet.gltf', (gltf) => {
-//   gltf.scene.scale.set(10, 10, 10);
-//   scene.add(gltf.scene);
+gltfLoader.load('/models/FlightHelmet/glTF/FlightHelmet.gltf', (gltf) => {
+  gltf.scene.scale.set(10, 10, 10);
+  scene.add(gltf.scene);
 
-//   updateAllMaterials();
-// });
+  updateAllMaterials();
+});
 
 //===================== Camera =========================
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
@@ -63,6 +62,16 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+//=========== Tone Mapping
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+gui.add(renderer, 'toneMapping', {
+  No: THREE.NoToneMapping,
+  Linear: THREE.LinearToneMapping,
+  Reinhard: THREE.ReinhardToneMapping,
+  Cineon: THREE.CineonToneMapping,
+  ACESFilmic: THREE.ACESFilmicToneMapping,
+});
 
 //================ Resize Listener ====================
 window.addEventListener('resize', () => {
@@ -84,3 +93,7 @@ const tick = () => {
 };
 
 tick();
+
+/* Tone mapping
+intends to convert High Dynamic Range (HDR) values to Low Dynamic Range (LDR) values. 
+will fake the process of converting LDR to HDR even if the colors aren't HDR resulting in a very realistic render */
