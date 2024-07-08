@@ -1,3 +1,8 @@
+//===================================================
+/* "It is not an actual project; therefore, 
+I rely on comments to assess the code." */
+//===================================================
+
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import GUI from 'lil-gui';
 import * as THREE from 'three';
@@ -58,13 +63,15 @@ controls.enableDamping = true;
 //==================== Renderer ========================
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
-  antialias: true,
+  antialias: true, // Multi sampling antialias (MSAA)
 });
 renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 //=========== Tone Mapping
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 3; // it's like intensity
+
 gui.add(renderer, 'toneMapping', {
   No: THREE.NoToneMapping,
   Linear: THREE.LinearToneMapping,
@@ -72,6 +79,7 @@ gui.add(renderer, 'toneMapping', {
   Cineon: THREE.CineonToneMapping,
   ACESFilmic: THREE.ACESFilmicToneMapping,
 });
+gui.add(renderer, 'toneMappingExposure').min(0).max(10).step(0.001);
 
 //================ Resize Listener ====================
 window.addEventListener('resize', () => {
@@ -96,4 +104,16 @@ tick();
 
 /* Tone mapping
 intends to convert High Dynamic Range (HDR) values to Low Dynamic Range (LDR) values. 
-will fake the process of converting LDR to HDR even if the colors aren't HDR resulting in a very realistic render */
+will fake the process of converting LDR to HDR even if the colors aren't HDR resulting in a very realistic render. */
+
+/* Super sampling antialias (SSAA) or full screen sampling (FSAA)
+- we increase the resolution beyond the actual one.
+- when resized to its normal-sized, each pixel color will automatically be averaged from the 4 pixels rendered.
+- Easy but bad for performance. 
+
+- you're gonna render your canvas twice the size on the width & on the height and then resize it back to the initial size, you get 4 time more pixels. */
+
+/* Multi sampling (MSAA)
+- Automatically performed by most recent GPUs.
+- Will check the neighbours of the pixel being rendered. if it's the edge of the geometry, will mix its color with those neighbours colors.
+- only works on geometry edges. */
