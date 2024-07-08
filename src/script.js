@@ -24,6 +24,8 @@ const updateAllMaterials = () => {
   scene.traverse((child) => {
     if (child.isMesh) {
       // Activate shadow here
+      child.castShadow = true;
+      child.receiveShadow = true;
     }
   });
 };
@@ -50,6 +52,33 @@ gltfLoader.load('/models/FlightHelmet/glTF/FlightHelmet.gltf', (gltf) => {
   updateAllMaterials();
 });
 
+//===================== Lights =========================
+const directionalLight = new THREE.DirectionalLight('#ffffff', 6);
+directionalLight.position.set(-4.99, 7.05, 1.64);
+directionalLight.castShadow = true;
+directionalLight.shadow.camera.far = 15;
+directionalLight.shadow.mapSize.set(1024, 1024);
+scene.add(directionalLight);
+
+//===== Shadow Helper
+// const directionalLightHelper = new THREE.CameraHelper(
+//   directionalLight.shadow.camera
+// );
+// scene.add(directionalLightHelper);
+
+//===== directionalLight targets the center of the model
+directionalLight.target.position.set(0, 4, 0);
+directionalLight.target.updateWorldMatrix(); // update the matrix only once
+
+// scene.add(directionalLight.target); // update matrix
+
+//===== GUI
+gui.add(directionalLight, 'intensity', 0, 10, 0.001).name('Light intensity');
+gui.add(directionalLight.position, 'x', -10, 10, 0.001).name('Light X');
+gui.add(directionalLight.position, 'y', -10, 10, 0.001).name('Light Y');
+gui.add(directionalLight.position, 'z', -10, 10, 0.001).name('Light Z');
+gui.add(directionalLight, 'castShadow');
+
 //===================== Camera =========================
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 100);
 camera.position.set(4, 5, 4);
@@ -68,7 +97,7 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-//=========== Tone Mapping
+//====== Tone Mapping
 renderer.toneMapping = THREE.ReinhardToneMapping;
 renderer.toneMappingExposure = 3; // it's like intensity
 
@@ -80,6 +109,13 @@ gui.add(renderer, 'toneMapping', {
   ACESFilmic: THREE.ACESFilmicToneMapping,
 });
 gui.add(renderer, 'toneMappingExposure').min(0).max(10).step(0.001);
+
+renderer.useLegacyLights = false;
+gui.add(renderer, 'useLegacyLights');
+
+//===== Shadows
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 //================ Resize Listener ====================
 window.addEventListener('resize', () => {
@@ -117,3 +153,14 @@ will fake the process of converting LDR to HDR even if the colors aren't HDR res
 - Automatically performed by most recent GPUs.
 - Will check the neighbours of the pixel being rendered. if it's the edge of the geometry, will mix its color with those neighbours colors.
 - only works on geometry edges. */
+
+/* Matrix
+- When we change properties like "position", "rotation", "scale", those will be compiled into a matrix
+- this process is done right before the object is rendered and only if it's in the scene */
+
+/* traverse()
+- traverse is a method used to visit all descendants of an object, including itself, and perform operations on each of them.
+
+- In the latest versions of Three.js, the intensity of the environment map is set directly on scene.environmentIntensity.
+
+- For this reasons, "updateAllMaterials" isn’t doing anything anymore, but I kept the function with the traverse(…) so that you can still add what’s following. */
